@@ -6,7 +6,7 @@ To testing application firstly you need to run
 LoadBalancer.java
 TCPServer.java
 UDPServer.java
-ComputationServer.java
+CalculationServer.java
 FileServer.java
 
 then
@@ -24,7 +24,7 @@ Ports:
 LoadBalancer : 6780
 TCPServer: 1112
 FileServer: 2223
-ComputationServer: 3334
+CalculationServer: 3334
 UDPServer: 5556
 
 

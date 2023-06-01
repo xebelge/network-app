@@ -1,10 +1,6 @@
-import java.net.DatagramSocket;
-import java.io.IOException;
 import java.net.*;
-import java.util.Scanner;
-import java.nio.ByteBuffer;
-public class UDPServer implements Runnable{
 
+public class UDPServer implements Runnable {
     public static void main(String[] args) {
         Thread server = new Thread(new UDPServer());
         server.start();
@@ -14,23 +10,24 @@ public class UDPServer implements Runnable{
     public void run() {
         while (true) {
             try {
-                DatagramSocket server = new DatagramSocket(4445);
+                DatagramSocket serverSocket = new DatagramSocket(8004);
 
                 byte[] buf = new byte[256];
                 DatagramPacket p = new DatagramPacket(buf, buf.length);
-                server.receive(p);
+                serverSocket.receive(p);
                 String q = new String(p.getData(), p.getOffset(), p.getLength());
                 int k = Integer.parseInt(q);
 
                 try {
                     Thread.sleep(k);
-                    System.out.println("Video End complated: ");
-                    server.close();
-                }catch (Exception e){}
-
+                    System.out.println("Video Streaming completed");
+                    serverSocket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
-    }
-
+}
