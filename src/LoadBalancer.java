@@ -2,17 +2,15 @@ import java.io.*;
 import java.net.*;
 
 public class LoadBalancer implements Runnable {
-    String clientSentence;
-    String capitalizedSentence;
-    ServerSocket welcomeSocket;
+    private ServerSocket welcomeSocket;
 
-    public LoadBalancer() throws Exception {
+    public LoadBalancer() throws IOException {
         welcomeSocket = new ServerSocket(8000);
     }
 
-    public static void main(String[] args) throws Exception {
-        Thread server = new Thread(new LoadBalancer());
-        server.start();
+    public static void main(String[] args) throws IOException {
+        Thread serverThread = new Thread(new LoadBalancer());
+        serverThread.start();
     }
 
     @Override
@@ -20,32 +18,39 @@ public class LoadBalancer implements Runnable {
         while (true) {
             try {
                 Socket connectionSocket = welcomeSocket.accept();
-                System.out.println("Client Connected to Load Balancer");
+                System.out.println("Client connected to Load Balancer");
 
                 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
                 DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-                clientSentence = inFromClient.readLine();
+                String clientRequest = inFromClient.readLine();
 
-                if (clientSentence.equals("1")) {
-                    System.out.println("Directory Listing");
-                    capitalizedSentence = "8001";
-                } else if (clientSentence.equals("2")) {
-                    System.out.println("File Transfer");
-                    capitalizedSentence = "8003";
-                } else if (clientSentence.equals("3")) {
-                    System.out.println("Computation");
-                    capitalizedSentence = "8002";
-                } else if (clientSentence.equals("4")) {
-                    System.out.println("Video Streaming");
-                    capitalizedSentence = "8004";
-                } else {
-                    System.out.println("Exit");
-                    capitalizedSentence = "exit";
+                String response;
+                switch (clientRequest) {
+                    case "1":
+                        System.out.println("Directory Listing");
+                        response = "8001";
+                        break;
+                    case "2":
+                        System.out.println("File Transfer");
+                        response = "8003";
+                        break;
+                    case "3":
+                        System.out.println("Computation");
+                        response = "8002";
+                        break;
+                    case "4":
+                        System.out.println("Video Streaming");
+                        response = "8004";
+                        break;
+                    default:
+                        System.out.println("Exit");
+                        response = "exit";
+                        break;
                 }
 
-                outToClient.writeBytes(capitalizedSentence);
+                outToClient.writeBytes(response);
                 connectionSocket.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

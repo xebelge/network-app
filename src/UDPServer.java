@@ -1,9 +1,9 @@
+import java.io.*;
 import java.net.*;
-
 public class UDPServer implements Runnable {
     public static void main(String[] args) {
-        Thread server = new Thread(new UDPServer());
-        server.start();
+        Thread serverThread = new Thread(new UDPServer());
+        serverThread.start();
     }
 
     @Override
@@ -13,19 +13,19 @@ public class UDPServer implements Runnable {
                 DatagramSocket serverSocket = new DatagramSocket(8004);
 
                 byte[] buf = new byte[256];
-                DatagramPacket p = new DatagramPacket(buf, buf.length);
-                serverSocket.receive(p);
-                String q = new String(p.getData(), p.getOffset(), p.getLength());
-                int k = Integer.parseInt(q);
+                DatagramPacket packet = new DatagramPacket(buf, buf.length);
+                serverSocket.receive(packet);
+                String receivedData = new String(packet.getData(), packet.getOffset(), packet.getLength());
+                int duration = Integer.parseInt(receivedData);
 
                 try {
-                    Thread.sleep(k);
+                    Thread.sleep(duration);
                     System.out.println("Video Streaming completed");
                     serverSocket.close();
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

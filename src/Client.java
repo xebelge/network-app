@@ -4,87 +4,85 @@ import java.util.Scanner;
 
 public class Client implements Runnable {
     public static void main(String[] args) throws IOException {
-        Thread c = new Thread(new Client());
-        c.start();
+        Thread clientThread = new Thread(new Client());
+        clientThread.start();
     }
 
     @Override
     public void run() {
         while (true) {
             try {
-                String sentence;
-                String given_port;
                 BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 
                 Socket clientSocket = new Socket("localhost", 8000);
                 DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
                 BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                System.out.println("1. TCP CONNECTION FOR DIRECTORY LISTING");
-                System.out.println("2. TCP CONNECTION FOR GET FILE");
-                System.out.println("3. TCP CONNECTION FOR COMPUTATION (KEEPS SERVER BUSY)");
-                System.out.println("4. UDP CONNECTION FOR VIDEO STREAMING (KEEPS SERVER BUSY)");
+                System.out.println("1. TCP Connection for Directory Listing");
+                System.out.println("2. TCP Connection for Get File");
+                System.out.println("3. TCP Connection for Computation (Keeps Server Busy)");
+                System.out.println("4. UDP Connection for Video Streaming (Keeps Server Busy)");
                 System.out.println("5. Exit");
 
-                sentence = inFromUser.readLine();
+                String userInput = inFromUser.readLine();
 
-                if (sentence.equals("1") || sentence.equals("2") || sentence.equals("3") || sentence.equals("4")) {
-                    outToServer.writeBytes(sentence + '\n');
-                    given_port = inFromServer.readLine();
+                if (userInput.equals("1") || userInput.equals("2") || userInput.equals("3") || userInput.equals("4")) {
+                    outToServer.writeBytes(userInput + '\n');
+                    String serverResponse = inFromServer.readLine();
 
-                    if (sentence.equals("1")) {
-                        System.out.println("FROM SERVER: " + given_port);
-                        clientSocket = new Socket("localhost", Integer.parseInt(given_port));
+                    if (userInput.equals("1")) {
+                        System.out.println("From Server: " + serverResponse);
+                        clientSocket = new Socket("localhost", Integer.parseInt(serverResponse));
                         inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                        given_port = inFromServer.readLine();
-                        System.out.println("FROM SERVER: " + given_port);
+                        serverResponse = inFromServer.readLine();
+                        System.out.println("From Server: " + serverResponse);
                         clientSocket.close();
-                    } else if (sentence.equals("2")) {
-                        clientSocket = new Socket("localhost", Integer.parseInt(given_port));
-                        DataOutputStream dao = new DataOutputStream(clientSocket.getOutputStream());
-                        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-                        byte[] b = new byte[200002];
-                        System.out.println("Enter File Name (or 'q' to go back to menu)");
-                        String fileName = bf.readLine();
+                    } else if (userInput.equals("2")) {
+                        clientSocket = new Socket("localhost", Integer.parseInt(serverResponse));
+                        DataOutputStream dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+                        byte[] buffer = new byte[200002];
+                        System.out.println("Enter File Name or 'q' to go back to menu.");
+                        String fileName = bufferedReader.readLine();
                         if (fileName.equals("q")) {
                             continue;
                         }
-                        dao.writeBytes(fileName + '\n');
+                        dataOutputStream.writeBytes(fileName + '\n');
 
-                        InputStream is = clientSocket.getInputStream();
-                        FileOutputStream fis = new FileOutputStream("./src/Download/" + fileName + ".txt");
-                        is.read(b, 0, b.length);
-                        fis.write(b, 0, b.length);
+                        InputStream inputStream = clientSocket.getInputStream();
+                        FileOutputStream fileOutputStream = new FileOutputStream("./src/Download/" + fileName + ".txt");
+                        inputStream.read(buffer, 0, buffer.length);
+                        fileOutputStream.write(buffer, 0, buffer.length);
                         clientSocket.close();
-                    } else if (sentence.equals("3")) {
-                        clientSocket = new Socket("localhost", Integer.parseInt(given_port));
+                    } else if (userInput.equals("3")) {
+                        clientSocket = new Socket("localhost", Integer.parseInt(serverResponse));
 
-                        DataOutputStream dao = new DataOutputStream(clientSocket.getOutputStream());
+                        DataOutputStream dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
                         System.out.println("Enter Number (ms): ");
-                        Scanner sc = new Scanner(System.in);
-                        int x = sc.nextInt();
-                        dao.writeInt(x);
+                        Scanner scanner = new Scanner(System.in);
+                        int duration = scanner.nextInt();
+                        dataOutputStream.writeInt(duration);
                         clientSocket.close();
-                    } else if (sentence.equals("4")) {
+                    } else if (userInput.equals("4")) {
                         String hostname = "localhost";
-                        int port = Integer.parseInt(given_port);
+                        int port = Integer.parseInt(serverResponse);
                         InetAddress address = InetAddress.getByName(hostname);
                         DatagramSocket socket = new DatagramSocket();
-                        Scanner sc = new Scanner(System.in);
+                        Scanner scanner = new Scanner(System.in);
                         System.out.println("Enter Bit Rate (ms)");
-                        String msg = sc.nextLine();
-                        byte[] buf = msg.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, port);
+                        String message = scanner.nextLine();
+                        byte[] buffer = message.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, port);
                         socket.send(packet);
                         clientSocket.close();
                     }
-                } else if (sentence.equals("5")) {
+                } else if (userInput.equals("5")) {
                     System.out.println("Exiting...");
                     break;
                 } else {
                     System.out.println("Invalid option! Please try again.");
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

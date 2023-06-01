@@ -2,16 +2,15 @@ import java.io.*;
 import java.net.*;
 
 public class FileServer implements Runnable {
-    ServerSocket serverSocket;
-    String fileName = null;
+    private ServerSocket serverSocket;
 
     public FileServer() throws IOException {
         serverSocket = new ServerSocket(8003);
     }
 
-    public static void main(String[] args) throws Exception {
-        Thread fileServer = new Thread(new FileServer());
-        fileServer.start();
+    public static void main(String[] args) throws IOException {
+        Thread serverThread = new Thread(new FileServer());
+        serverThread.start();
     }
 
     @Override
@@ -24,15 +23,15 @@ public class FileServer implements Runnable {
                 BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
                 DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
-                fileName = inFromClient.readLine();
-                FileInputStream fr = new FileInputStream("./src/Download/" + fileName + ".txt");
-                byte[] b = new byte[2000];
-                fr.read(b, 0, b.length);
-                OutputStream os = connectionSocket.getOutputStream();
-                os.write(b, 0, b.length);
+                String fileName = inFromClient.readLine();
+                FileInputStream fileInputStream = new FileInputStream("./src/Download/" + fileName + ".txt");
+                byte[] buffer = new byte[2000];
+                fileInputStream.read(buffer, 0, buffer.length);
+                OutputStream outputStream = connectionSocket.getOutputStream();
+                outputStream.write(buffer, 0, buffer.length);
 
                 connectionSocket.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.err.println(e.getMessage());
             }
         }

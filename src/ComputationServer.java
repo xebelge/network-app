@@ -2,38 +2,36 @@ import java.io.*;
 import java.net.*;
 
 public class ComputationServer implements Runnable {
-    String clientSentence;
-    DataInputStream dot;
-    ServerSocket welcomeSocket;
+    private ServerSocket serverSocket;
 
-    public ComputationServer() throws Exception {
-        welcomeSocket = new ServerSocket(8002);
+    public ComputationServer() throws IOException {
+        serverSocket = new ServerSocket(8002);
     }
 
-    public static void main(String[] args) throws Exception {
-        Thread cServer = new Thread(new ComputationServer());
-        cServer.start();
+    public static void main(String[] args) throws IOException {
+        Thread serverThread = new Thread(new ComputationServer());
+        serverThread.start();
     }
 
     @Override
     public void run() {
-        Socket connectionSocket = null;
+        Socket connectionSocket;
 
         while (true) {
             try {
-                connectionSocket = welcomeSocket.accept();
-                dot = new DataInputStream(connectionSocket.getInputStream());
-                System.out.println("Client Connected to Computation server");
+                connectionSocket = serverSocket.accept();
+                DataInputStream dataInputStream = new DataInputStream(connectionSocket.getInputStream());
+                System.out.println("Client connected to Computation server");
 
-                int x = dot.readInt();
+                int duration = dataInputStream.readInt();
                 try {
-                    Thread.sleep(x);
+                    Thread.sleep(duration);
                     System.out.println("Computation completed");
                     connectionSocket.close();
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

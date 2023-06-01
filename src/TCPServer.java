@@ -2,17 +2,15 @@ import java.io.*;
 import java.net.*;
 
 public class TCPServer implements Runnable {
-    ServerSocket serverSocket;
-    String sentence;
-    String clientSentence;
+    private ServerSocket serverSocket;
 
     public TCPServer() throws IOException {
         serverSocket = new ServerSocket(8001);
     }
 
-    public static void main(String[] args) throws Exception {
-        Thread listingServer = new Thread(new TCPServer());
-        listingServer.start();
+    public static void main(String[] args) throws IOException {
+        Thread serverThread = new Thread(new TCPServer());
+        serverThread.start();
     }
 
     @Override
@@ -23,18 +21,18 @@ public class TCPServer implements Runnable {
                 System.out.println("Client Connected");
 
                 DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-                BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
-                String[] pathnames;
-                File f = new File("./src");
-                pathnames = f.list();
-                for (String pathname : pathnames) {
-                    sentence = pathname + ", ";
-                    outToClient.writeBytes(sentence);
+                File directory = new File("./src");
+                String[] filenames = directory.list();
+                StringBuilder response = new StringBuilder();
+                for (String filename : filenames) {
+                    response.append(filename).append(", ");
                 }
 
+                outToClient.writeBytes(response.toString());
+
                 connectionSocket.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
