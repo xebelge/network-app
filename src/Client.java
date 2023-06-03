@@ -18,11 +18,11 @@ public class Client implements Runnable {
                 DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
                 BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                System.out.println("1. TCP Connection for Directory Listing");
-                System.out.println("2. TCP Connection for Get File");
-                System.out.println("3. TCP Connection for Computation (Keeps Server Busy)");
-                System.out.println("4. UDP Connection for Video Streaming (Keeps Server Busy)");
-                System.out.println("5. Exit");
+                System.out.println("Write 1 for TCP Connection for Directory Listing");
+                System.out.println("Write 2 for TCP Connection for Get File");
+                System.out.println("Write 3 for TCP Connection for Computation (Keeps Server Busy)");
+                System.out.println("Write 4 for UDP Connection for Video Streaming (Keeps Server Busy)");
+                System.out.println("Write 5 for Exit");
 
                 String userInput = inFromUser.readLine();
 
